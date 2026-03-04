@@ -2,6 +2,14 @@ package File;
 
 import java.util.Date;
 
+/**
+ * a basic File class simulating how files work in real applications
+ *
+ * @invar File.size should always be in between 0 and Integer.MAX_VALUE
+ * @invar File.creationDate can't be null
+ * @invar File.isValidName(File.name) should be true at all times
+ *
+ */
 public class File {
 
     //===  naamgeving [TOTAAL]  ===//
@@ -20,15 +28,38 @@ public class File {
 
     // CONSTRUCTOREN
 
+    /**
+     * constructs a file using multiple parameters
+     *
+     * @param name the name of the to-be-created file
+     * @param size the original size of the file
+     * @param writable sets the permission state for writing for everyone in that file
+     *
+     * @post a file is created, if the name doesn't respect the naming conventions it'll be
+     * replaced with a dummy name
+     */
     public File(String name, int size, boolean writable) {
-        this.name = name;
+        if (isValidName(name)){this.name = name;}
+        else{this.name = "new_file.file";}
         this.size = size;
         this.writable = writable;
         this.creationTime = new Date(); //[WIP]
     }
 
+    /**
+     * constructs a new file using a single parameter
+     *
+     * @param name the name of the to-be-created file
+     *
+     * @post an empty file is created, if the name doesn't respect the naming conventions it'll be
+     * replaced with a dummy name
+     *
+     * @post the file is writable for everyone by default
+     *
+     */
     public File(String name) {
-        this.name = name;
+        if (isValidName(name)){this.name = name;}
+        else{this.name = "new_file.file";}
         this.size = 0;
         this.creationTime = new Date();
     }
@@ -51,6 +82,10 @@ public class File {
 
     public String getName(){return this.name;}
 
+    /**
+     *
+     * @param newName
+     */
     public void renameFile(String newName){
         if (this.isValidName(newName) && this.isWritable()){
             this.name = newName;
@@ -181,3 +216,5 @@ public class File {
     }
 
 }
+pre bij nominaal
+post altijd en return
