@@ -66,6 +66,9 @@ public class File {
 
     // GETTERS-SETTERS
 
+    public long getSize() {
+        return size;
+    }
     public Date getModificationTime() {
         return modificationTime;
     }

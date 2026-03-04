@@ -90,5 +90,43 @@ public class FileTests {
         assertEquals("myFirstFile.file", myFirstFile.getName());
 
     }
+    @Test
+    public void testEnlarge_Success() {
+        int toename = 100;
+        normalSizedFile.enlarge(toename);
+
+        assertEquals(356, normalSizedFile.getSize(),
+                "De grootte moet met 100 zijn toegenomen (256 + 100).");
+
+        assertNotNull(normalSizedFile.getModificationTime(),
+                "De modification time moet nu gezet zijn.");
+    }
+
+    @Test
+    public void testEnlarge_Unwritable() {
+        assertThrows(Exception.class, () -> {
+            unwritableFile.enlarge(50);
+        }, "Zou een exception moeten gooien omdat het bestand niet schrijfbaar is.");
+
+        assertEquals(256, unwritableFile.getSize(),
+                "De grootte mag niet aangepast zijn na een gefaalde enlarge.");
+    }
+
+    @Test
+    public void testEnlarge_EmptyFile() {
+        emptyFile.enlarge(500);
+
+        assertEquals(500, emptyFile.getSize(),
+                "Een leeg bestand moet ook vergroot kunnen worden.");
+    }
+
+    @Test
+    public void testEnlarge_Boundary_TooBig() {
+        assertThrows(Exception.class, () -> {
+            writableFile.enlarge(Integer.MAX_VALUE);
+        }, "Mag de maximale bestandsgrootte niet overschrijden.");
+    }
+}
+
 
 }
