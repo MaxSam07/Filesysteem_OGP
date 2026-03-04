@@ -216,5 +216,3 @@ public class File {
     }
 
 }
-pre bij nominaal
-post altijd en return
