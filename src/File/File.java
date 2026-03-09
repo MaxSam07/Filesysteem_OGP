@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * a basic File class simulating how files work in real applications
+ * some behavior is not accurate to how it really is implemented
  *
  * @invar File.size should always be in between 0 and Integer.MAX_VALUE
  * @invar File.creationDate can't be null
@@ -31,6 +32,8 @@ public class File {
     /**
      * constructs a file using multiple parameters
      *
+     * @pre this.isValidName(name) should return true
+     *
      * @param name the name of the to-be-created file
      * @param size the original size of the file
      * @param writable sets the permission state for writing for everyone in that file
@@ -49,11 +52,12 @@ public class File {
     /**
      * constructs a new file using a single parameter
      *
+     * @pre this.isValidName(name) should return true
+     *
      * @param name the name of the to-be-created file
      *
-     * @post an empty file is created, if the name doesn't respect the naming conventions it'll be
-     * replaced with a dummy name
-     *
+     * @post an empty file is created
+     * @post if the name doesn't respect the naming conventions it'll be replaced with a dummy name
      * @post the file is writable for everyone by default
      *
      */
@@ -66,9 +70,8 @@ public class File {
 
     // GETTERS-SETTERS
 
-    public long getSize() {
-        return size;
-    }
+    public long getSize() { return size; }
+
     public Date getModificationTime() {
         return modificationTime;
     }
@@ -86,8 +89,9 @@ public class File {
     public String getName(){return this.name;}
 
     /**
+     * @param newName name that will be asigned to the file
      *
-     * @param newName
+     * @pre this.isValidName(newName) has to return true in order for the rename to take effect.
      */
     public void renameFile(String newName){
         if (this.isValidName(newName) && this.isWritable()){
@@ -100,10 +104,9 @@ public class File {
         else {System.out.println(newName + " is not a valid name");}
     }
 
-    // METHODES
 
     /**
-     * checks the validity of the string as filename according to the conditions in the excercise
+     * checks the validity of the string as filename according to the conditions in the exercise
      *
      * @param newName the string that has to be checked
      *
@@ -114,7 +117,7 @@ public class File {
         // list with all allowed characters in file name
         String ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxz"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"1234567890";
         String ALLOWED_SYMBOLS = "._-";
-        int symbolcounter = 0;
+        int symbolCounter = 0;
 
         for (int i = 0; i < newName.length(); i++){ // itereer doorheen de characters
 
@@ -125,23 +128,31 @@ public class File {
             }
             if (ALLOWED_SYMBOLS.contains(character.toString())){
                 // als de character een symbool is, voeg 1 toe aan de teller
-                symbolcounter++;
+                symbolCounter++;
             }
         }
-        return symbolcounter >= 1; // return true alleen als er minstens 1 symbooltje is
+        return symbolCounter >= 1; // return true alleen als er minstens 1 symbooltje is
     }
 
+
+    /**
+     * method called upon change in file contents or name
+     *
+     * @post this.modificationTime will be set to the millisecond time upon function call
+     *
+    * */
     private void updateModificationTime() {
         this.modificationTime = new Date();
     }
 
     /**
-     *  @pre int bytes mag niet negatief zijn,
-     *      mag niet groter zijn dan maxFileSize-size
+     * method allowing for increase in the size of the file's contents
      *
-     *  @post het argument bytes wordt toegevoegd aan het attribuut size
-     *      en wordt opgeslagen in het attribuut size
-     *      de functie setLastModified wordt opgeropen
+     *  @pre parameter bytes can't be negative
+     *  @pre parameter bytes can't be greater than this.maxFileSize - this.size
+     *
+     *  @post parameter bytes is added to this.size
+     *  @post this.updateModificationTime() gets called
      */
     public void enlarge(long bytes){
         if (this.isWritable()) {this.size+=bytes;}
