@@ -1,6 +1,12 @@
 package File;
 
 import java.util.Date;
+/*
+ *   schrijfrechten [DEFENSIEF]
+ *   tijdstippen [TOTAAL]
+ *   bestandsgrootte [NOMINAAL]
+ *   naamgeving [TOTAAL]
+ */
 
 /**
  * a basic File class simulating how files work in real applications
@@ -13,21 +19,12 @@ import java.util.Date;
  */
 public class File {
 
-    //===  naamgeving [TOTAAL]  ===//
-    private String name; //hoofdlettergevoelig en minstens 1 teken
-
-    //===  bestandsgrootte [NOMINAAL]  ===//
-    private long size; //staat in bytes en kan nul zijn
+    private String name;
+    private long size;
     private static final int MAXFILESIZE = Integer.MAX_VALUE;
-
-    //===  tijdstippen [TOTAAL]  ===//
     private final Date creationTime;
-    private Date modificationTime; //grootte of naam bestand
-
-    //===  schrijfrechten [DEFENSIEF]  ===//
+    private Date modificationTime;
     private boolean writable;
-
-    // CONSTRUCTOREN
 
     /**
      * constructs a file using multiple parameters
@@ -43,10 +40,10 @@ public class File {
      */
     public File(String name, int size, boolean writable) {
         if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.file";}
+        else{this.name = "new_file.txt";}
         this.size = size;
         this.writable = writable;
-        this.creationTime = new Date(); //[WIP]
+        this.creationTime = new Date();
     }
 
     /**
@@ -63,12 +60,10 @@ public class File {
      */
     public File(String name) {
         if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.file";}
+        else{this.name = "new_file.txt";}
         this.size = 0;
         this.creationTime = new Date();
     }
-
-    // GETTERS-SETTERS
 
     public long getSize() { return size; }
 
@@ -88,7 +83,7 @@ public class File {
 
     public String getName(){return this.name;}
 
-    /**
+    /**-d
      * @param newName name that will be asigned to the file
      *
      * @pre this.isValidName(newName) has to return true in order for the rename to take effect.
@@ -162,12 +157,11 @@ public class File {
     /**
      * @param bytes the changes in bytes of the file
      *
-     *  @pre int bytes mag niet negatief zijn,
-     *      mag niet groter zijn dan maxFileSize-size
+     *  @pre parameter bytes can't be negative
+     *  @pre parameter bytes can't be greater than this.size
      *
-     *  @post het argument bytes wordt afgetrokken van het attribuut size
-     *      en wordt opgeslagen in het attribuut size
-     *      de functie setLastModified wordt opgeropen
+     *  @post this.size is reduced by parameter bytes
+     *  @post this.updateModificationTime() gets called
      */
     public void shorten(long bytes){
         if (this.isWritable()) {this.size-=bytes;}
@@ -177,9 +171,9 @@ public class File {
     /**
      * function that checks if two files have overlapping use periods
      *
-     * @param otherFile the file we want to check for overlap
+     * @param otherFile the file we want to check for overlap with the current File object
      *
-     * @return whether the files do have overlapping use periods or not
+     * @return true if the two files have an overlapping use period, false if they don't
      */
     public boolean hasOverlappingUsePeriod(File otherFile) {
 
@@ -208,7 +202,6 @@ public class File {
         }
 
         // CHECK FOR TIME TRAVEL AND REVERSE IT
-
         if (start1.after(end1)) {
             Date swap;
             swap = start1;
@@ -223,10 +216,8 @@ public class File {
         }
 
         // ACTUALLY CHECK FOR OVERLAP
-
         if (start1.before(start2) && end1.before(start2)) {return false;}
         if (start2.before(start1) && end2.before(start1)) {return false;}
         else {return true;}
     }
-
 }
