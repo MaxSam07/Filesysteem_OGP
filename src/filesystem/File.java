@@ -1,4 +1,4 @@
-package File;
+package filesystem;
 
 import java.util.Date;
 /*
@@ -26,6 +26,9 @@ public class File {
     private Date modificationTime;
     private boolean writable;
 
+    private Directory dir;
+    private final FILETYPE type;
+
     /**
      * constructs a file using multiple parameters
      *
@@ -38,12 +41,17 @@ public class File {
      * @post a file is created, if the name doesn't respect the naming conventions it'll be
      * replaced with a dummy name
      */
-    public File(String name, int size, boolean writable) {
-        if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.txt";}
+    public File(Directory dir,String name, int size, boolean writable, FILETYPE type) {
         this.size = size;
         this.writable = writable;
         this.creationTime = new Date();
+        this.dir = dir;
+
+        if(isValidName(name)) {this.name = name;}
+        else {this.name = "new_file";}
+
+        if(isValidType(type)){this.type = type;}
+        else {throw new IllegalArgumentException("Invalid file type");}
     }
 
     /**
@@ -58,11 +66,17 @@ public class File {
      * @post the file is writable for everyone by default
      *
      */
-    public File(String name) {
-        if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.txt";}
+    public File(Directory dir, String name, FILETYPE type) {
         this.size = 0;
+        this.writable = true;
         this.creationTime = new Date();
+        this.dir = dir;
+
+        if(isValidName(name)) {this.name = name;}
+        else {this.name = "new_file";}
+
+        if(isValidType(type)){this.type = type;}
+        else {throw new IllegalArgumentException("Invalid file type");}
     }
 
     public long getSize() { return size; }
@@ -83,10 +97,16 @@ public class File {
 
     public String getName(){return this.name;}
 
-    /**-d
+    public FILETYPE getType(){return this.type;}
+
+    public String getNameAndExtension(){return this.name+"."+this.type;}
+
+    /**
      * @param newName name that will be asigned to the file
      *
      * @pre this.isValidName(newName) has to return true in order for the rename to take effect.
+     *
+     * @throws FileNotWritableException if the file isn't writable when executing this function
      */
     public void renameFile(String newName){
         if (this.isValidName(newName) && this.isWritable()){
@@ -94,11 +114,24 @@ public class File {
             this.updateModificationTime();
         }
 
-        else if (this.isValidName(newName) && !this.isWritable()){System.out.println(this.name + " is not writable");}
+        else if (this.isValidName(newName) && !this.isWritable()) {
+            throw new FileNotWritableException(this.name + " is not writable");}
 
-        else {System.out.println(newName + " is not a valid name");}
+        else {
+            System.out.println(newName + " is not a valid name");}
     }
 
+    /**
+     * checks the validity of the filetype according to the conditions in the exercise
+     * the function checks whether the filetype is known by checking if it is present in the Filesystem.EXTENSIONS list
+     *
+     * @param type the type that has to be checked
+     *
+     * @return the validity of the type in bool format
+     */
+    private boolean isValidType(FILETYPE type){
+        return FILETYPE.returnExtensionsAsList().contains(type.getExtension());
+    }
 
     /**
      * checks the validity of the string as filename according to the conditions in the exercise
@@ -107,7 +140,7 @@ public class File {
      *
      * @return the validity of the string in bool format
      */
-    private boolean isValidName(String newName){
+    private boolean isValidName(String newName){ // GETS BestandsSysteem.EXTENSIONS
 
         // list with all allowed characters in file name
         String ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxz"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"1234567890";
@@ -128,7 +161,6 @@ public class File {
         }
         return symbolCounter >= 1; // return true alleen als er minstens 1 symbooltje is
     }
-
 
     /**
      * method called upon change in file contents or name
