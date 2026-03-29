@@ -109,10 +109,10 @@ public class File {
      *
      * @return the validity of the string in bool format
      */
-    private boolean isValidName(String newName){
+    protected boolean isValidName(String newName){
 
         // list with all allowed characters in file name
-        String ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxz"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"1234567890";
+        String ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyz"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"1234567890";
         String ALLOWED_SYMBOLS = "._-";
         int symbolcounter = 0;
 
