@@ -1,9 +1,16 @@
 package File;
 
 import java.util.Date;
+/*
+ *   schrijfrechten [DEFENSIEF]
+ *   tijdstippen [TOTAAL]
+ *   bestandsgrootte [NOMINAAL]
+ *   naamgeving [TOTAAL]
+ */
 
 /**
  * a basic File class simulating how files work in real applications
+ * some behavior is not accurate to how it really is implemented
  *
  * @invar File.size should always be in between 0 and Integer.MAX_VALUE
  * @invar File.creationDate can't be null
@@ -12,24 +19,17 @@ import java.util.Date;
  */
 public class File {
 
-    //===  naamgeving [TOTAAL]  ===//
-    private String name; //hoofdlettergevoelig en minstens 1 teken
-
-    //===  bestandsgrootte [NOMINAAL]  ===//
-    private long size; //staat in bytes en kan nul zijn
+    private String name;
+    private long size;
     private static final int MAXFILESIZE = Integer.MAX_VALUE;
-
-    //===  tijdstippen [TOTAAL]  ===//
     private final Date creationTime;
-    private Date modificationTime; //grootte of naam bestand
-
-    //===  schrijfrechten [DEFENSIEF]  ===//
+    private Date modificationTime;
     private boolean writable;
-
-    // CONSTRUCTOREN
 
     /**
      * constructs a file using multiple parameters
+     *
+     * @pre this.isValidName(name) should return true
      *
      * @param name the name of the to-be-created file
      * @param size the original size of the file
@@ -40,35 +40,33 @@ public class File {
      */
     public File(String name, int size, boolean writable) {
         if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.file";}
+        else{this.name = "new_file.txt";}
         this.size = size;
         this.writable = writable;
-        this.creationTime = new Date(); //[WIP]
+        this.creationTime = new Date();
     }
 
     /**
      * constructs a new file using a single parameter
      *
+     * @pre this.isValidName(name) should return true
+     *
      * @param name the name of the to-be-created file
      *
-     * @post an empty file is created, if the name doesn't respect the naming conventions it'll be
-     * replaced with a dummy name
-     *
+     * @post an empty file is created
+     * @post if the name doesn't respect the naming conventions it'll be replaced with a dummy name
      * @post the file is writable for everyone by default
      *
      */
     public File(String name) {
         if (isValidName(name)){this.name = name;}
-        else{this.name = "new_file.file";}
+        else{this.name = "new_file.txt";}
         this.size = 0;
         this.creationTime = new Date();
     }
 
-    // GETTERS-SETTERS
+    public long getSize() { return size; }
 
-    public long getSize() {
-        return size;
-    }
     public Date getModificationTime() {
         return modificationTime;
     }
@@ -85,9 +83,10 @@ public class File {
 
     public String getName(){return this.name;}
 
-    /**
+    /**-d
+     * @param newName name that will be asigned to the file
      *
-     * @param newName
+     * @pre this.isValidName(newName) has to return true in order for the rename to take effect.
      */
     public void renameFile(String newName){
         if (this.isValidName(newName) && this.isWritable()){
@@ -100,10 +99,9 @@ public class File {
         else {System.out.println(newName + " is not a valid name");}
     }
 
-    // METHODES
 
     /**
-     * checks the validity of the string as filename according to the conditions in the excercise
+     * checks the validity of the string as filename according to the conditions in the exercise
      *
      * @param newName the string that has to be checked
      *
@@ -114,7 +112,7 @@ public class File {
         // list with all allowed characters in file name
         String ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyz"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"1234567890";
         String ALLOWED_SYMBOLS = "._-";
-        int symbolcounter = 0;
+        int symbolCounter = 0;
 
         for (int i = 0; i < newName.length(); i++){ // itereer doorheen de characters
 
@@ -125,23 +123,31 @@ public class File {
             }
             if (ALLOWED_SYMBOLS.contains(character.toString())){
                 // als de character een symbool is, voeg 1 toe aan de teller
-                symbolcounter++;
+                symbolCounter++;
             }
         }
-        return symbolcounter >= 1; // return true alleen als er minstens 1 symbooltje is
+        return symbolCounter >= 1; // return true alleen als er minstens 1 symbooltje is
     }
 
+
+    /**
+     * method called upon change in file contents or name
+     *
+     * @post this.modificationTime will be set to the millisecond time upon function call
+     *
+    * */
     private void updateModificationTime() {
         this.modificationTime = new Date();
     }
 
     /**
-     *  @pre int bytes mag niet negatief zijn,
-     *      mag niet groter zijn dan maxFileSize-size
+     * method allowing for increase in the size of the file's contents
      *
-     *  @post het argument bytes wordt toegevoegd aan het attribuut size
-     *      en wordt opgeslagen in het attribuut size
-     *      de functie setLastModified wordt opgeropen
+     *  @pre parameter bytes can't be negative
+     *  @pre parameter bytes can't be greater than this.maxFileSize - this.size
+     *
+     *  @post parameter bytes is added to this.size
+     *  @post this.updateModificationTime() gets called
      */
     public void enlarge(long bytes){
         if (this.isWritable()) {this.size+=bytes;}
@@ -151,12 +157,11 @@ public class File {
     /**
      * @param bytes the changes in bytes of the file
      *
-     *  @pre int bytes mag niet negatief zijn,
-     *      mag niet groter zijn dan maxFileSize-size
+     *  @pre parameter bytes can't be negative
+     *  @pre parameter bytes can't be greater than this.size
      *
-     *  @post het argument bytes wordt afgetrokken van het attribuut size
-     *      en wordt opgeslagen in het attribuut size
-     *      de functie setLastModified wordt opgeropen
+     *  @post this.size is reduced by parameter bytes
+     *  @post this.updateModificationTime() gets called
      */
     public void shorten(long bytes){
         if (this.isWritable()) {this.size-=bytes;}
@@ -166,9 +171,9 @@ public class File {
     /**
      * function that checks if two files have overlapping use periods
      *
-     * @param otherFile the file we want to check for overlap
+     * @param otherFile the file we want to check for overlap with the current File object
      *
-     * @return whether the files do have overlapping use periods or not
+     * @return true if the two files have an overlapping use period, false if they don't
      */
     public boolean hasOverlappingUsePeriod(File otherFile) {
 
@@ -197,7 +202,6 @@ public class File {
         }
 
         // CHECK FOR TIME TRAVEL AND REVERSE IT
-
         if (start1.after(end1)) {
             Date swap;
             swap = start1;
@@ -212,10 +216,8 @@ public class File {
         }
 
         // ACTUALLY CHECK FOR OVERLAP
-
         if (start1.before(start2) && end1.before(start2)) {return false;}
         if (start2.before(start1) && end2.before(start1)) {return false;}
         else {return true;}
     }
-
 }
