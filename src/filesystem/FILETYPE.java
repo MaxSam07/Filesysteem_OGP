@@ -1,29 +1,53 @@
 package filesystem;
 
-import java.util.ArrayList;
-import java.util.List;
+import be.kuleuven.cs.som.annotate.*;
 
 public enum FILETYPE {
+
+    /**********************************************************
+     * ALLOWED FILETYPES
+     **********************************************************/
+
     TXT("txt"),
     PDF("pdf"),
     JAVA("java"),;
 
-
-    private final String extension;
+    /**********************************************************
+     * Constructors
+     **********************************************************/
 
     FILETYPE(String extension) {
         this.extension = extension;
     }
 
+    /**********************************************************
+     * Extension
+     **********************************************************/
+
+    private final String extension;
+
     public String getExtension() {
         return this.extension;
     }
 
-    public static List<String> returnExtensionsAsList() {
-        List<String> extensions = new ArrayList<>();
-        for (FILETYPE t : FILETYPE.values()) {
-            extensions.add(t.extension);
+    public static FILETYPE getFiletypeOfExtension(String extension) throws IllegalArgumentException {
+
+        for (FILETYPE t : values()) {
+            if (t.getExtension().equals(extension)) {
+                return t;
+            }
         }
-        return extensions;
+        throw new IllegalArgumentException("Unknown extension "+extension);
     }
+
+    public static boolean isFiletype(String extension) {
+        try {
+            getFiletypeOfExtension(extension);
+        }
+        catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -3,13 +3,20 @@ package filesystem;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
- * A class for signaling illegal attempts to change a file.
+ * A class for signaling a file can't be root
  *
  * @invar	The referenced file must be effective
  * 			| isValidFile(getFile())
- * @author 	Tommy Messelis
+ * @author 	Maxime Samyn, Joran Naessens, Lars Debrabander
  * @version	2.3
  */
+public class CantBeRootException extends RuntimeException {
+    public CantBeRootException(String message) {
+        super(message);
+    }
+}
+
+
 public class FileNotWritableException extends RuntimeException {
 
     /**
@@ -29,7 +36,7 @@ public class FileNotWritableException extends RuntimeException {
      * @return	result == (file != null)
      */
     public static boolean isValidFile(File file) {
-        return file != null;
+        return file.getAbsolutePath() == "/"+file.getName();
     }
 
     /**
@@ -44,14 +51,15 @@ public class FileNotWritableException extends RuntimeException {
      * 			is set to the given file.
      * 			| new.getFile() == file
      */
-    public FileNotWritableException(File file) {
+    public CantBeRootException(File file) {
         this.file = file;
     }
 
     /**
      * Return the file involved in this file not writable exception.
      */
-    @Basic @Immutable
+    @Basic
+    @Immutable
     public File getFile() {
         return file;
     }
